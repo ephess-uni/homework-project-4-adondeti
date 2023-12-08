@@ -8,15 +8,15 @@ from collections import defaultdict
 
 def reformat_dates(old_dates):
     
-    new_dateswith_new_format =[]
+    new_dates =[]
     """Accepts a list of date strings in format yyyy-mm-dd, re-formats each
     element to a format dd mmm yyyy--01 Jan 2001."""
-    for o in old_dates:
+    for date in old_dates:
         
-        resa = datetime.strptime(o, "%Y-%m-%d").strftime('%d %b %Y')
-        new_dateswith_new_format.append(resa)
+        date_obj = datetime.strptime(date, "%Y-%m-%d").strftime('%d %b %Y')
+        new_dates.append(date_obj)
         
-    return new_dateswith_new_format
+    return new_dates
 
 
 
@@ -24,9 +24,10 @@ def date_range(start, n):
     """For input date string `start`, with format 'yyyy-mm-dd', returns
     a list of of `n` datetime objects starting at `start` where each
     element in the list is one day after the previous."""
-    if not isinstance(start, str) or not isinstance(n, int):
-        
-        raise TypeError()
+    if not isinstance(start, str):
+        raise TypeError("Enter the string data type only")
+    if not isinstance(value, int):
+        raise TypeError("Ente integer data type")
     
     dates = []
     
@@ -43,48 +44,48 @@ def add_date_range(values, start_date):
     """Adds a daily date range to the list `values` beginning with
     `start_date`.  The date, value pairs are returned as tuples
     in the returned list."""
-    num_days = len(values)
+    days = len(values)
     
-    date_range_list = date_range(start_date, num_days)
+    date_range_list = date_range(start_date, days)
 
-    ret = list(zip(date_range_list, values))
-    return ret
+    date_range = list(zip(date_range_list, values))
+    return date_range
 
 
 def fees_report(infile, outfile):
     """Calculates late fees per patron id and writes a summary report to
     outfile."""
-    headers_data_line = ("book_uid,isbn_13,patron_id,date_checkout,date_due,date_returned".
+    headers = ("book_uid,isbn_13,patron_id,date_checkout,date_due,date_returned".
               split(','))
-    output_data_file = defaultdict(float)
-    with open(infile, 'r') as f:
-        completeLines = DictReader(f, fieldnames=headers_data_line)
-        completerows = [row for row in completeLines]
+    outputs = defaultdict(float)
+    with open(infile, 'r') as file:
+        lines = DictReader(file, fieldnames=headers)
+        rows = [row for row in lines]
 
-    completerows.pop(0)
+    rows.pop(0)
        
-    for rw in completerows:
+    for row in rows:
        
-        patron_id = rw['patron_id']
+        patron_id = row['patron_id']
         
-        date_due = datetime.strptime(rw['date_due'], "%m/%d/%Y")
+        date_due = datetime.strptime(row['date_due'], "%m/%d/%Y")
         
-        date_returned = datetime.strptime(rw['date_returned'], "%m/%d/%Y")
+        date_returned = datetime.strptime(row['date_returned'], "%m/%d/%Y")
         
-        days_with_late = (date_returned - date_due).days
+        late_days = (date_returned - date_due).days
         
-        output_data_file[patron_id]+= 0.25 * days_with_late if days_with_late > 0 else 0.0
+        outputs[patron_id]+= 0.25 * late_days if late_days > 0 else 0.0
         
                  
-    hds = [
-        {'patron_id': pt, 'late_fees': f'{fws:0.2f}'} for pt, fws in output_data_file.items()
+    headers = [
+        {'patron_id': patron_id, 'late_fees': f'{late_fee:0.2f}'} for patron_id, late_fee in outputs.items()
     ]
-    finalhdr = ['patron_id', 'late_fees']
+    finalheader = ['patron_id', 'late_fees']
     with open(outfile, 'w') as f:
         
-        writer = DictWriter(f,finalhdr)
+        writer = DictWriter(f,finalheader)
         writer.writeheader()
-        writer.writerows(hds)
+        writer.writerows(headers)
 
             
             
