@@ -26,7 +26,7 @@ def date_range(start, n):
     element in the list is one day after the previous."""
     if not isinstance(start, str):
         raise TypeError("Enter the string data type only")
-    if not isinstance(value, int):
+    if not isinstance(n, int):
         raise TypeError("Ente integer data type")
     
     dates = []
