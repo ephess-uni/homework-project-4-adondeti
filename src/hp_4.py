@@ -27,7 +27,7 @@ def date_range(start, n):
     if not isinstance(start, str):
         raise TypeError("Enter the string data type only")
     if not isinstance(n, int):
-        raise TypeError("Ente integer data type")
+        raise TypeError("Enter integer data type")
     
     dates = []
     
@@ -48,8 +48,9 @@ def add_date_range(values, start_date):
     
     date_range_list = date_range(start_date, days)
 
-    date_range = list(zip(date_range_list, values))
-    return date_range
+    date_rang = list(zip(date_range_list, values))
+    
+    return date_rang
 
 
 def fees_report(infile, outfile):
