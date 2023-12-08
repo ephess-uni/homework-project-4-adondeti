@@ -62,6 +62,7 @@ def fees_report(infile, outfile):
                 late_fee = days_late * 0.25
 
                 late_fees[row["patron_id"]] += late_fee
+                
     with open(outfile, 'w', newline = '') as csvfile:
         field_names = ['patron_id', 'late_fees']
         writer = csv.DictWriter(csvfile, fieldnames = field_names)
