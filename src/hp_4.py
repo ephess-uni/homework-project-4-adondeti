@@ -45,31 +45,42 @@ def add_date_range(values, start_date):
     return list(zip(start_date, values))
 
 
+
 def fees_report(infile, outfile):
     """Calculates late fees per patron id and writes a summary report to
     outfile."""
-    late_fees = defaultdict(int)
+    headers_data_line = ("book_uid,isbn_13,patron_id,date_checkout,date_due,date_returned".
+              split(','))
+    output_data_file = defaultdict(float)
+    with open(infile, 'r') as f:
+        completeLines = DictReader(f, fieldnames=headers_data_line)
+        completerows = [row for row in completeLines]
 
-    with open(infile, "r") as csvfile:
-        reader = csv.DictReader(csvfile)
-
-        for row in reader:
-            date_due = datetime.strptime(row["date_due"], '%m/%d%Y')
-            date_returned = datetime.strptime(row['date_returned'], '%m/%d/%y')
-
-            if date_returned > due_date:
-                days_late = (days_returned - date_due).days
-                late_fee = days_late * 0.25
-
-                late_fees[row["patron_id"]] += late_fee
-                
-    with open(outfile, 'w', newline = '') as csvfile:
-        field_names = ['patron_id', 'late_fees']
-        writer = csv.DictWriter(csvfile, fieldnames = field_names)
+    completerows.pop(0)
+       
+    for rw in completerows:
+       
+        patron_id = rw['patron_id']
+        
+        date_due = datetime.strptime(rw['date_due'], "%m/%d/%Y")
+        
+        date_returned = datetime.strptime(rw['date_returned'], "%m/%d/%Y")
+        
+        days_with_late = (date_returned - date_due).days
+        
+        output_data_file[patron_id]+= 0.25 * days_with_late if days_with_late > 0 else 0.0
+        
+                 
+    hds = [
+        {'patron_id': pt, 'late_fees': f'{fws:0.2f}'} for pt, fws in output_data_file.items()
+    ]
+    finalhdr = ['patron_id', 'late_fees']
+    with open(outfile, 'w') as f:
+        
+        writer = DictWriter(f,finalhdr)
         writer.writeheader()
+        writer.writerows(hds)
 
-        for patron_id, fee in late_fees.items():
-            writer.writerow({"patron_id": patron_id, "late_fees": "{:.2f}".format(fee)})
             
             
  
