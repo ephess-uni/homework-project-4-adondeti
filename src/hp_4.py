@@ -34,7 +34,7 @@ def date_range(start, n):
     for _ in range(n):
         date_list.append(date_object)
         date_object+=timedelta(days = 1)
-    return date_objects
+    return date_object
 
 
 def add_date_range(values, start_date):
